@@ -1,13 +1,14 @@
 /**
- * GitHub Mirror Accelerator - 极简版
- * 只包含核心代理功能，确保兼容性
+ * GitHub Mirror Accelerator - 修复版
+ * 确保所有变量正确定义，避免中文变量名
  */
 
 // 支持的GitHub域名
 const GITHUB_DOMAINS = [
   'github.com',
   'raw.githubusercontent.com',
-  'gist.github.com'
+  'gist.github.com',
+  'api.github.com'
 ];
 
 // 处理CORS
@@ -72,7 +73,7 @@ async function handleRequest(请求) {
     if (!isValidGitHubUrl(githubUrlStr)) {
       return new Response(JSON.stringify({
         error: true,
-        message: '无效的GitHub链接'
+        message: 'Invalid GitHub URL'
       }), {
         status: 400,
         headers: {
@@ -96,10 +97,10 @@ async function handleRequest(请求) {
     return handleCors(response);
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Proxy error:', error);
     return new Response(JSON.stringify({
       error: true,
-      message: '代理错误: ' + error.message
+      message: 'Proxy error: ' + error.message
     }), {
       status: 500,
       headers: {
