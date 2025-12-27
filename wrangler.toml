@@ -2,14 +2,7 @@
 name = "github-mirror-accelerator"
 compatibility_date = "2025-12-28"
 compatibility_flags = ["nodejs_compat"]
-
-# 核心Pages配置
 pages_build_output_dir = "."
-
-# 构建配置
-[build]
-command = "exit 0"
-cwd = "."
 
 # 环境变量（用于代码中的配置）
 [vars]
@@ -17,13 +10,3 @@ CACHE_MAX_AGE = 86400
 RATE_LIMIT = 100
 RATE_LIMIT_WINDOW = 60
 ALLOWED_ORIGINS = "*"
-
-# 开发环境配置（只保留支持的字段）
-[dev]
-port = 8788
-local_protocol = "https"
-
-# 简化的路由配置（使用正确的格式）
-[[routes]]
-pattern = "/*"
-zone_name = ""
