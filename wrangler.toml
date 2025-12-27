@@ -18,12 +18,12 @@ RATE_LIMIT = 100
 RATE_LIMIT_WINDOW = 60
 ALLOWED_ORIGINS = "*"
 
-# 开发环境配置
+# 开发环境配置（只保留支持的字段）
 [dev]
 port = 8788
 local_protocol = "https"
-log_level = "debug"
 
-# 简化的路由配置
+# 简化的路由配置（使用正确的格式）
 [[routes]]
 pattern = "/*"
+zone_name = ""
