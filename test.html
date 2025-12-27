@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Mirror Accelerator - 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        .test-url {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Mirror Accelerator - 测试页面</h1>
+    
+    <div class="test-section">
+        <h2>1. 基本功能测试</h2>
+        <p>点击下方按钮测试不同类型的GitHub链接加速：</p>
+        
+        <div>
+            <h3>GitHub文件测试</h3>
+            <div class="test-url">
+                原始链接: https://github.com/tailwindlabs/tailwindcss/blob/master/README.md
+            </div>
+            <button onclick="testUrl('https://github.com/tailwindlabs/tailwindcss/blob/master/README.md')">
+                测试加速
+            </button>
+            <div id="result1"></div>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Release文件测试</h3>
+        <div class="test-url">
+            原始链接: https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/Git-2.33.0.2-64-bit.exe
+        </div>
+        <button onclick="testUrl('https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/Git-2.33.0.2-64-bit.exe')">
+            测试加速
+        </button>
+        <div id="result2"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Raw内容测试</h3>
+        <div class="test-url">
+            原始链接: https://raw.githubusercontent.com/reactjs/reactjs.org/master/src/pages/index.js
+        </div>
+        <button onclick="testUrl('https://raw.githubusercontent.com/reactjs/reactjs.org/master/src/pages/index.js')">
+            测试加速
+        </button>
+        <div id="result3"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. 批量测试</h2>
+        <p>测试多个链接的批量转换：</p>
+        <textarea id="batchUrls" rows="5" style="width: 100%; padding: 10px; margin: 10px 0;">
+https://github.com/tailwindlabs/tailwindcss/blob/master/README.md
+https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/Git-2.33.0.2-64-bit.exe
+https://raw.githubusercontent.com/reactjs/reactjs.org/master/src/pages/index.js
+        </textarea>
+        <button onclick="testBatchUrls()">测试批量转换</button>
+        <div id="batchResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. 性能测试</h2>
+        <p>测试加速前后的下载速度对比：</p>
+        <button onclick="testPerformance()">运行性能测试</button>
+        <div id="performanceResult"></div>
+    </div>
+
+    <script>
+        const baseUrl = window.location.origin;
+        
+        function testUrl(url) {
+            const encodedUrl = encodeURIComponent(url);
+            const acceleratedUrl = `${baseUrl}/${encodedUrl}`;
+            
+            const resultDiv = event.target.nextElementSibling;
+            resultDiv.innerHTML = `<p>加速链接: <a href="${acceleratedUrl}" target="_blank">${acceleratedUrl}</a></p>`;
+            
+            // 测试链接是否可访问
+            fetch(acceleratedUrl, { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        resultDiv.innerHTML += `<p class="success">✓ 链接可访问，状态码: ${response.status}</p>`;
+                        const contentType = response.headers.get('content-type');
+                        const contentLength = response.headers.get('content-length');
+                        if (contentType) resultDiv.innerHTML += `<p>内容类型: ${contentType}</p>`;
+                        if (contentLength) resultDiv.innerHTML += `<p>文件大小: ${formatFileSize(contentLength)}</p>`;
+                    } else {
+                        resultDiv.innerHTML += `<p class="error">✗ 访问失败，状态码: ${response.status}</p>`;
+                    }
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += `<p class="error">✗ 错误: ${error.message}</p>`;
+                });
+        }
+        
+        function testBatchUrls() {
+            const textarea = document.getElementById('batchUrls');
+            const urls = textarea.value.trim().split('\n').filter(line => line.trim() !== '');
+            const resultDiv = document.getElementById('batchResult');
+            
+            if (urls.length === 0) {
+                resultDiv.innerHTML = '<p class="error">请输入至少一个URL</p>';
+                return;
+            }
+            
+            resultDiv.innerHTML = '<h3>批量转换结果：</h3>';
+            
+            urls.forEach((url, index) => {
+                const encodedUrl = encodeURIComponent(url.trim());
+                const acceleratedUrl = `${baseUrl}/${encodedUrl}`;
+                resultDiv.innerHTML += `
+                    <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                        <p><strong>原始链接 ${index + 1}:</strong> ${url}</p>
+                        <p><strong>加速链接:</strong> <a href="${acceleratedUrl}" target="_blank">${acceleratedUrl}</a></p>
+                    </div>
+                `;
+            });
+        }
+        
+        async function testPerformance() {
+            const resultDiv = document.getElementById('performanceResult');
+            resultDiv.innerHTML = '<p>正在运行性能测试...</p>';
+            
+            const testUrl = 'https://github.com/tailwindlabs/tailwindcss/archive/refs/heads/master.zip';
+            const encodedUrl = encodeURIComponent(testUrl);
+            const acceleratedUrl = `${baseUrl}/${encodedUrl}`;
+            
+            try {
+                // 测试原始链接速度
+                resultDiv.innerHTML += '<p>测试原始GitHub链接...</p>';
+                const originalTime = await measureDownloadTime(testUrl);
+                
+                // 测试加速链接速度
+                resultDiv.innerHTML += '<p>测试加速链接...</p>';
+                const acceleratedTime = await measureDownloadTime(acceleratedUrl);
+                
+                // 计算加速比例
+                const speedup = ((originalTime - acceleratedTime) / originalTime * 100).toFixed(1);
+                
+                resultDiv.innerHTML += `
+                    <h3>性能测试结果：</h3>
+                    <p>原始链接下载时间: ${originalTime.toFixed(2)} 秒</p>
+                    <p>加速链接下载时间: ${acceleratedTime.toFixed(2)} 秒</p>
+                    <p class="success">加速比例: ${speedup}%</p>
+                `;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<p class="error">测试失败: ${error.message}</p>`;
+            }
+        }
+        
+        async function measureDownloadTime(url) {
+            const start = performance.now();
+            const response = await fetch(url, { method: 'HEAD' });
+            if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+            const end = performance.now();
+            return (end - start) / 1000;
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</body>
+</html>

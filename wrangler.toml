@@ -1,0 +1,45 @@
+# GitHub Mirror Accelerator - Cloudflare Pages Configuration
+
+name = "github-mirror-accelerator"
+compatibility_date = "2025-12-28"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+pages_build_output_dir = "."
+
+# 构建配置
+[build]
+command = "exit 0"
+cwd = "."
+watch_dir = "."
+
+# 路由配置
+[[routes]]
+pattern = "/*"
+zone_name = ""
+
+# 环境变量
+[vars]
+CACHE_MAX_AGE = 86400
+RATE_LIMIT = 100
+RATE_LIMIT_WINDOW = 60
+
+# KV命名空间（可选，用于高级缓存）
+# [[kv_namespaces]]
+# binding = "CACHE_KV"
+# id = ""
+# preview_id = ""
+
+# 日志配置
+[log]
+level = "info"
+
+# 安全配置
+[security]
+cors = { allow_origin = ["*"], allow_methods = ["GET", "HEAD", "OPTIONS"] }
+
+# 压缩配置
+[compression]
+enabled = true
+includes = ["text/*", "application/javascript", "application/json"]
+excludes = ["image/*", "video/*", "audio/*"]

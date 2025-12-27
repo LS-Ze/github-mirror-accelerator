@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub镜像加速 - 高速下载GitHub资源</title>
+    <meta name="description" content="GitHub镜像加速服务，提供GitHub文件、Release、Raw内容的高速下载，支持批量转换，界面友好，使用简单。">
+    <meta name="keywords" content="GitHub加速, GitHub镜像, GitHub下载, GitHub proxy, GitHub代理, 高速下载">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    
+    <!-- Tailwind 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36CFC9',
+                        accent: '#722ED1',
+                        dark: '#1D2129',
+                        light: '#F2F3F5'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #165DFF 0%, #36CFC9 100%);
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+            .input-focus {
+                transition: all 0.3s ease;
+            }
+            .input-focus:focus {
+                box-shadow: 0 0 0 3px rgba(22, 93, 255, 0.3);
+            }
+        }
+    </style>
+    
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            scroll-behavior: smooth;
+        }
+        
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-md fixed w-full top-0 z-50 transition-all duration-300" id="navbar">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-github text-primary text-2xl"></i>
+                <span class="text-xl font-bold text-primary">GitHub镜像加速</span>
+            </div>
+            <div class="hidden md:flex space-x-6">
+                <a href="#features" class="text-gray-600 hover:text-primary transition-colors">功能特点</a>
+                <a href="#usage" class="text-gray-600 hover:text-primary transition-colors">使用说明</a>
+                <a href="#examples" class="text-gray-600 hover:text-primary transition-colors">使用示例</a>
+                <a href="https://github.com/your-username/github-mirror-accelerator" target="_blank" class="text-gray-600 hover:text-primary transition-colors flex items-center">
+                    <i class="fa fa-github mr-1"></i> GitHub
+                </a>
+            </div>
+            <button class="md:hidden text-gray-600" id="mobile-menu-btn">
+                <i class="fa fa-bars text-xl"></i>
+            </button>
+        </div>
+        <!-- 移动端菜单 -->
+        <div class="md:hidden hidden bg-white shadow-lg absolute w-full" id="mobile-menu">
+            <div class="container mx-auto px-4 py-2 flex flex-col space-y-3">
+                <a href="#features" class="text-gray-600 hover:text-primary py-2 transition-colors">功能特点</a>
+                <a href="#usage" class="text-gray-600 hover:text-primary py-2 transition-colors">使用说明</a>
+                <a href="#examples" class="text-gray-600 hover:text-primary py-2 transition-colors">使用示例</a>
+                <a href="https://github.com/your-username/github-mirror-accelerator" target="_blank" class="text-gray-600 hover:text-primary py-2 transition-colors flex items-center">
+                    <i class="fa fa-github mr-1"></i> GitHub
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <header class="pt-24 pb-16 md:pt-32 md:pb-24 gradient-bg text-white">
+        <div class="container mx-auto px-4 text-center">
+            <div class="animate-fade-in">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold mb-6 leading-tight">
+                    GitHub镜像加速
+                </h1>
+                <p class="text-[clamp(1rem,2vw,1.25rem)] mb-8 max-w-2xl mx-auto opacity-90">
+                    高速下载GitHub资源，支持文件、Release、Raw内容，一键转换，即点即用
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                    <a href="#converter" class="bg-white text-primary font-medium px-8 py-3 rounded-full hover:bg-gray-100 transition-colors shadow-lg">
+                        <i class="fa fa-magic mr-2"></i>开始使用
+                    </a>
+                    <a href="#usage" class="bg-transparent border-2 border-white text-white font-medium px-8 py-3 rounded-full hover:bg-white/10 transition-colors">
+                        <i class="fa fa-book mr-2"></i>使用说明
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 统计数据 -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 animate-fade-in delay-200">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="text-3xl font-bold mb-2" id="stats-users">0</div>
+                    <div class="text-sm opacity-80">用户数量</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="text-3xl font-bold mb-2" id="stats-requests">0</div>
+                    <div class="text-sm opacity-80">加速请求</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="text-3xl font-bold mb-2" id="stats-speed">0</div>
+                    <div class="text-sm opacity-80">平均加速</div>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <div class="text-3xl font-bold mb-2" id="stats-status">100%</div>
+                    <div class="text-sm opacity-80">服务可用性</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 转换器区域 -->
+    <section id="converter" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fade-in">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">
+                        GitHub链接转换器
+                    </h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        粘贴GitHub链接，一键转换为加速链接，支持多种链接格式
+                    </p>
+                </div>
+
+                <!-- 转换卡片 -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 card-hover animate-fade-in delay-100">
+                    <!-- 输入区域 -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fa fa-link mr-2"></i>GitHub原始链接
+                        </label>
+                        <div class="relative">
+                            <textarea 
+                                id="original-url" 
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/30 input-focus resize-none"
+                                rows="3"
+                                placeholder="粘贴GitHub链接，例如：
+https://github.com/user/repo/blob/main/file.txt
+https://github.com/user/repo/releases/download/v1.0.0/file.zip
+https://raw.githubusercontent.com/user/repo/main/file.js"
+                            ></textarea>
+                            <button id="paste-btn" class="absolute right-3 top-3 text-gray-500 hover:text-primary transition-colors">
+                                <i class="fa fa-paste"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between mt-2 text-sm text-gray-500">
+                            <span id="url-count">0 个链接</span>
+                            <button id="clear-btn" class="text-gray-500 hover:text-red-500 transition-colors">
+                                <i class="fa fa-trash mr-1"></i>清空
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 转换按钮 -->
+                    <div class="flex flex-col sm:flex-row gap-3 mb-6">
+                        <button 
+                            id="convert-btn" 
+                            class="flex-1 bg-primary hover:bg-primary/90 text-white font-medium px-6 py-3 rounded-lg transition-colors flex items-center justify-center"
+                        >
+                            <i class="fa fa-exchange mr-2"></i>加速转换
+                        </button>
+                        <button 
+                            id="batch-convert-btn" 
+                            class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-6 py-3 rounded-lg transition-colors flex items-center justify-center"
+                        >
+                            <i class="fa fa-th-large mr-2"></i>批量转换
+                        </button>
+                    </div>
+
+                    <!-- 结果区域 -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fa fa-rocket mr-2"></i>加速链接
+                        </label>
+                        <div class="relative">
+                            <textarea 
+                                id="accelerated-url" 
+                                class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 resize-none cursor-pointer"
+                                rows="3"
+                                placeholder="转换后的加速链接将显示在这里"
+                                readonly
+                            ></textarea>
+                            <button id="copy-btn" class="absolute right-3 top-3 text-gray-500 hover:text-primary transition-colors">
+                                <i class="fa fa-copy"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-between mt-2">
+                            <div class="text-sm text-gray-500">
+                                <span id="result-count">0 个结果</span>
+                            </div>
+                            <a id="download-btn" href="#" class="text-primary hover:text-primary/80 font-medium flex items-center" target="_blank" rel="noopener noreferrer" style="display: none;">
+                                <i class="fa fa-download mr-1"></i>立即下载
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 状态信息 -->
+                    <div id="status-message" class="p-3 rounded-lg mb-4 hidden">
+                        <div class="flex items-center">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            <span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快速链接 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8 animate-fade-in delay-200">
+                    <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer quick-link" data-url="https://github.com/">
+                        <div class="flex items-center">
+                            <i class="fa fa-github text-gray-600 text-xl mr-3"></i>
+                            <div>
+                                <div class="font-medium">GitHub主页</div>
+                                <div class="text-sm text-gray-500">github.com</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer quick-link" data-url="https://raw.githubusercontent.com/">
+                        <div class="flex items-center">
+                            <i class="fa fa-file-code-o text-gray-600 text-xl mr-3"></i>
+                            <div>
+                                <div class="font-medium">Raw内容</div>
+                                <div class="text-sm text-gray-500">raw.githubusercontent.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能特点 -->
+    <section id="features" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 animate-fade-in">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">
+                    强大功能，简单使用
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    我们提供全方位的GitHub加速服务，满足您的各种下载需求
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 功能卡片 1 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-100">
+                    <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-bolt text-primary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">高速下载</h3>
+                    <p class="text-gray-600">
+                        利用Cloudflare全球CDN网络，提供极速下载体验，告别龟速下载
+                    </p>
+                </div>
+
+                <!-- 功能卡片 2 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-200">
+                    <div class="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-code-fork text-secondary text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">多格式支持</h3>
+                    <p class="text-gray-600">
+                        支持GitHub文件、Release、Raw内容、Archive等多种链接格式
+                    </p>
+                </div>
+
+                <!-- 功能卡片 3 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-300">
+                    <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-th-large text-accent text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">批量转换</h3>
+                    <p class="text-gray-600">
+                        支持同时转换多个GitHub链接，提高工作效率
+                    </p>
+                </div>
+
+                <!-- 功能卡片 4 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-100">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-mobile text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">响应式设计</h3>
+                    <p class="text-gray-600">
+                        完美适配桌面端和移动端，随时随地使用加速服务
+                    </p>
+                </div>
+
+                <!-- 功能卡片 5 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-200">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-shield text-yellow-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">安全可靠</h3>
+                    <p class="text-gray-600">
+                        端到端加密传输，严格的访问控制，保障您的下载安全
+                    </p>
+                </div>
+
+                <!-- 功能卡片 6 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 card-hover animate-fade-in delay-300">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                        <i class="fa fa-github text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">开源免费</h3>
+                    <p class="text-gray-600">
+                        完全开源的项目，免费使用，支持自行部署定制
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使用说明 -->
+    <section id="usage" class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 animate-fade-in">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">
+                    使用说明
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    简单几步，快速上手GitHub镜像加速服务
+                </p>
+            </div>
+
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- 使用步骤 -->
+                    <div class="animate-fade-in delay-100">
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mr-3">1</span>
+                            复制GitHub链接
+                        </h3>
+                        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                            <p class="text-gray-600 mb-2">在GitHub上找到您需要下载的文件，复制其链接：</p>
+                            <div class="bg-white p-3 rounded-lg text-sm text-gray-700 font-mono overflow-x-auto">
+                                https://github.com/user/repo/blob/main/file.txt
+                            </div>
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mr-3">2</span>
+                            粘贴并转换
+                        </h3>
+                        <div class="bg-gray-50 rounded-xl p-4 mb-6">
+                            <p class="text-gray-600 mb-2">将链接粘贴到转换器中，点击"加速转换"按钮</p>
+                            <img src="https://picsum.photos/seed/step2/600/300" alt="转换界面" class="w-full rounded-lg shadow-md">
+                        </div>
+
+                        <h3 class="text-xl font-bold mb-6 flex items-center">
+                            <span class="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center mr-3">3</span>
+                            复制加速链接
+                        </h3>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <p class="text-gray-600 mb-2">复制生成的加速链接，使用下载工具或浏览器下载</p>
+                            <div class="bg-white p-3 rounded-lg text-sm text-gray-700 font-mono overflow-x-auto">
+                                https://your-domain.pages.dev/https://github.com/user/repo/blob/main/file.txt
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 支持的链接格式 -->
+                    <div class="animate-fade-in delay-200">
+                        <h3 class="text-xl font-bold mb-6">支持的链接格式</h3>
+                        
+                        <div class="space-y-4">
+                            <!-- GitHub文件 -->
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-file-text-o text-primary mr-2"></i>
+                                    <span class="font-medium">GitHub文件</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">支持blob链接：</div>
+                                <div class="bg-white p-2 rounded text-xs font-mono overflow-x-auto">
+                                    https://github.com/user/repo/blob/branch/file.txt
+                                </div>
+                            </div>
+
+                            <!-- Release文件 -->
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-download text-secondary mr-2"></i>
+                                    <span class="font-medium">Release文件</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">支持releases/download链接：</div>
+                                <div class="bg-white p-2 rounded text-xs font-mono overflow-x-auto">
+                                    https://github.com/user/repo/releases/download/v1.0.0/file.zip
+                                </div>
+                            </div>
+
+                            <!-- Raw内容 -->
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-code text-accent mr-2"></i>
+                                    <span class="font-medium">Raw内容</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">支持raw.githubusercontent.com链接：</div>
+                                <div class="bg-white p-2 rounded text-xs font-mono overflow-x-auto">
+                                    https://raw.githubusercontent.com/user/repo/branch/file.js
+                                </div>
+                            </div>
+
+                            <!-- Archive文件 -->
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-archive text-green-600 mr-2"></i>
+                                    <span class="font-medium">Archive文件</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">支持archive链接：</div>
+                                <div class="bg-white p-2 rounded text-xs font-mono overflow-x-auto">
+                                    https://github.com/user/repo/archive/branch.zip
+                                </div>
+                            </div>
+
+                            <!-- Gist内容 -->
+                            <div class="bg-gray-50 rounded-xl p-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fa fa-github text-purple-600 mr-2"></i>
+                                    <span class="font-medium">Gist内容</span>
+                                </div>
+                                <div class="text-sm text-gray-600 mb-2">支持gist.github.com链接：</div>
+                                <div class="bg-white p-2 rounded text-xs font-mono overflow-x-auto">
+                                    https://gist.github.com/user/gist-id
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 使用示例 -->
+    <section id="examples" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 animate-fade-in">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">
+                    使用示例
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    查看实际使用效果，了解加速前后的对比
+                </p>
+            </div>
+
+            <div class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- 示例1 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover animate-fade-in delay-100">
+                        <div class="bg-primary text-white p-4">
+                            <h3 class="text-lg font-bold">示例1：GitHub文件加速</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">原始链接：</div>
+                                <div class="bg-gray-50 p-3 rounded text-sm font-mono overflow-x-auto">
+                                    https://github.com/tailwindlabs/tailwindcss/blob/master/README.md
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">加速链接：</div>
+                                <div class="bg-green-50 p-3 rounded text-sm font-mono overflow-x-auto text-green-700">
+                                    https://your-domain.pages.dev/https://github.com/tailwindlabs/tailwindcss/blob/master/README.md
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fa fa-clock-o mr-2 text-primary"></i>
+                                <span>加速前：约15秒</span>
+                                <span class="mx-2">→</span>
+                                <span class="text-green-600">加速后：约2秒</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例2 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover animate-fade-in delay-200">
+                        <div class="bg-secondary text-white p-4">
+                            <h3 class="text-lg font-bold">示例2：Release文件加速</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">原始链接：</div>
+                                <div class="bg-gray-50 p-3 rounded text-sm font-mono overflow-x-auto">
+                                    https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/Git-2.33.0.2-64-bit.exe
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">加速链接：</div>
+                                <div class="bg-green-50 p-3 rounded text-sm font-mono overflow-x-auto text-green-700">
+                                    https://your-domain.pages.dev/https://github.com/git-for-windows/git/releases/download/v2.33.0.windows.2/Git-2.33.0.2-64-bit.exe
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fa fa-download mr-2 text-secondary"></i>
+                                <span>文件大小：约50MB</span>
+                                <span class="mx-2">→</span>
+                                <span class="text-green-600">下载速度：1-5MB/s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例3 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover animate-fade-in delay-300">
+                        <div class="bg-accent text-white p-4">
+                            <h3 class="text-lg font-bold">示例3：Raw内容加速</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">原始链接：</div>
+                                <div class="bg-gray-50 p-3 rounded text-sm font-mono overflow-x-auto">
+                                    https://raw.githubusercontent.com/reactjs/reactjs.org/master/src/pages/index.js
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">加速链接：</div>
+                                <div class="bg-green-50 p-3 rounded text-sm font-mono overflow-x-auto text-green-700">
+                                    https://your-domain.pages.dev/https://raw.githubusercontent.com/reactjs/reactjs.org/master/src/pages/index.js
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fa fa-code mr-2 text-accent"></i>
+                                <span>代码文件</span>
+                                <span class="mx-2">→</span>
+                                <span class="text-green-600">即时加载</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 示例4 -->
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover animate-fade-in delay-400">
+                        <div class="bg-green-600 text-white p-4">
+                            <h3 class="text-lg font-bold">示例4：批量转换</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">批量输入：</div>
+                                <div class="bg-gray-50 p-3 rounded text-sm font-mono overflow-x-auto">
+                                    https://github.com/user/repo1/blob/main/file1.txt<br>
+                                    https://github.com/user/repo2/releases/download/v1.0/file2.zip<br>
+                                    https://raw.githubusercontent.com/user/repo3/main/file3.js
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <div class="text-sm text-gray-500 mb-1">批量输出：</div>
+                                <div class="bg-green-50 p-3 rounded text-sm font-mono overflow-x-auto text-green-700">
+                                    https://your-domain.pages.dev/https://github.com/user/repo1/blob/main/file1.txt<br>
+                                    https://your-domain.pages.dev/https://github.com/user/repo2/releases/download/v1.0/file2.zip<br>
+                                    https://your-domain.pages.dev/https://raw.githubusercontent.com/user/repo3/main/file3.js
+                                </div>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fa fa-th-large mr-2 text-green-600"></i>
+                                <span>3个链接</span>
+                                <span class="mx-2">→</span>
+                                <span class="text-green-600">一键转换完成</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16 animate-fade-in">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-gray-800 mb-4">
+                    常见问题
+                </h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">
+                    解答您可能遇到的问题
+                </p>
+            </div>
+
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4 animate-fade-in delay-100">
+                    <!-- FAQ 1 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>加速服务支持哪些文件类型？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                支持所有GitHub上的文件类型，包括但不限于：代码文件（.js, .py, .java等）、文档文件（.md, .txt, .pdf等）、二进制文件（.exe, .dll, .zip等）、图片文件（.jpg, .png, .gif等）。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>有使用限制吗？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                基于Cloudflare Pages的限制，免费计划每天支持10万次请求。对于大多数个人用户和小型团队来说，这个限制已经足够使用。如果您有更高的需求，可以考虑升级到Cloudflare的付费计划。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>可以用于商业用途吗？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                可以，但请遵守GitHub的使用条款和Cloudflare的服务条款。本项目采用MIT许可证，允许商业使用，但不承担任何责任。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>如何自定义界面？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                您可以修改项目中的`index.html`和相关的CSS文件来自定义界面样式。项目使用Tailwind CSS，您可以通过修改Tailwind配置来自定义颜色、字体等样式。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 5 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>如何部署自己的加速服务？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                您可以Fork本项目到自己的GitHub账户，然后按照README中的部署指南部署到Cloudflare Pages。部署完成后，您就拥有了自己的GitHub镜像加速服务。
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 6 -->
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <button class="faq-question w-full text-left p-4 font-medium flex justify-between items-center focus:outline-none">
+                            <span>加速服务的原理是什么？</span>
+                            <i class="fa fa-chevron-down text-gray-400 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer bg-gray-50 p-4 hidden">
+                            <p class="text-gray-600">
+                                加速服务基于Cloudflare的全球CDN网络，当您请求加速链接时，Cloudflare会从最近的节点为您提供服务，大大减少了网络延迟。同时，Cloudflare会缓存常用的资源，进一步提高访问速度。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa fa-github text-primary text-2xl"></i>
+                        <span class="text-xl font-bold">GitHub镜像加速</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">
+                        高速下载GitHub资源，支持文件、Release、Raw内容，一键转换，即点即用
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="https://github.com/your-username/github-mirror-accelerator" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fa fa-envelope text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">快速链接</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#converter" class="hover:text-white transition-colors">链接转换</a></li>
+                        <li><a href="#features" class="hover:text-white transition-colors">功能特点</a></li>
+                        <li><a href="#usage" class="hover:text-white transition-colors">使用说明</a></li>
+                        <li><a href="#examples" class="hover:text-white transition-colors">使用示例</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold mb-4">相关资源</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="https://github.com" target="_blank" class="hover:text-white transition-colors">GitHub官网</a></li>
+                        <li><a href="https://cloudflare.com" target="_blank" class="hover:text-white transition-colors">Cloudflare</a></li>
+                        <li><a href="https://pages.cloudflare.com" target="_blank" class="hover:text-white transition-colors">Cloudflare Pages</a></li>
+                        <li><a href="https://workers.cloudflare.com" target="_blank" class="hover:text-white transition-colors">Cloudflare Workers</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 GitHub镜像加速. 本项目采用MIT许可证开源.</p>
+                <p class="mt-2 text-sm">
+                    本服务仅供学习和研究使用，请勿用于非法用途。使用本服务即表示您同意遵守GitHub的使用条款和相关法律法规。
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // DOM元素
+        const originalUrlTextarea = document.getElementById('original-url');
+        const acceleratedUrlTextarea = document.getElementById('accelerated-url');
+        const convertBtn = document.getElementById('convert-btn');
+        const batchConvertBtn = document.getElementById('batch-convert-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const pasteBtn = document.getElementById('paste-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const urlCountSpan = document.getElementById('url-count');
+        const resultCountSpan = document.getElementById('result-count');
+        const statusMessageDiv = document.getElementById('status-message');
+        const navbar = document.getElementById('navbar');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const faqQuestions = document.querySelectorAll('.faq-question');
+
+        // 基础URL（当前页面的URL）
+        const baseUrl = window.location.origin;
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('py-2', 'shadow-lg');
+                navbar.classList.remove('py-3', 'shadow-md');
+            } else {
+                navbar.classList.add('py-3', 'shadow-md');
+                navbar.classList.remove('py-2', 'shadow-lg');
+            }
+        });
+
+        // 移动端菜单切换
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // FAQ折叠效果
+        faqQuestions.forEach(question => {
+            question.addEventListener('click', () => {
+                const answer = question.nextElementSibling;
+                const icon = question.querySelector('i');
+                
+                answer.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+
+        // 更新URL计数
+        originalUrlTextarea.addEventListener('input', updateUrlCount);
+
+        function updateUrlCount() {
+            const text = originalUrlTextarea.value.trim();
+            const urls = text ? text.split('\n').filter(line => line.trim() !== '') : [];
+            urlCountSpan.textContent = `${urls.length} 个链接`;
+        }
+
+        // 粘贴按钮
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                originalUrlTextarea.value = text;
+                updateUrlCount();
+                showStatus('已从剪贴板粘贴内容', 'success');
+            } catch (error) {
+                showStatus('粘贴失败，请手动粘贴', 'error');
+            }
+        });
+
+        // 清空按钮
+        clearBtn.addEventListener('click', () => {
+            originalUrlTextarea.value = '';
+            acceleratedUrlTextarea.value = '';
+            updateUrlCount();
+            updateResultCount();
+            downloadBtn.style.display = 'none';
+            showStatus('已清空内容', 'info');
+        });
+
+        // 转换按钮
+        convertBtn.addEventListener('click', () => {
+            convertUrls(false);
+        });
+
+        // 批量转换按钮
+        batchConvertBtn.addEventListener('click', () => {
+            convertUrls(true);
+        });
+
+        // 复制按钮
+        copyBtn.addEventListener('click', async () => {
+            try {
+                const text = acceleratedUrlTextarea.value.trim();
+                if (!text) {
+                    showStatus('没有可复制的内容', 'warning');
+                    return;
+                }
+                
+                await navigator.clipboard.writeText(text);
+                showStatus('已复制到剪贴板', 'success');
+            } catch (error) {
+                showStatus('复制失败', 'error');
+            }
+        });
+
+        // 转换URL
+        function convertUrls(isBatch) {
+            const text = originalUrlTextarea.value.trim();
+            if (!text) {
+                showStatus('请输入GitHub链接', 'warning');
+                return;
+            }
+
+            const urls = text.split('\n').filter(line => line.trim() !== '');
+            
+            if (urls.length === 0) {
+                showStatus('请输入有效的GitHub链接', 'warning');
+                return;
+            }
+
+            // 单链接模式：只转换第一个链接
+            if (!isBatch && urls.length > 1) {
+                urls.splice(1);
+            }
+
+            const acceleratedUrls = urls.map(url => {
+                const trimmedUrl = url.trim();
+                return `${baseUrl}/${encodeURIComponent(trimmedUrl)}`;
+            });
+
+            acceleratedUrlTextarea.value = acceleratedUrls.join('\n');
+            updateResultCount();
+            
+            // 如果是单链接，显示下载按钮
+            if (!isBatch && acceleratedUrls.length === 1) {
+                downloadBtn.href = acceleratedUrls[0];
+                downloadBtn.style.display = 'flex';
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+
+            showStatus(`成功转换 ${acceleratedUrls.length} 个链接`, 'success');
+        }
+
+        // 更新结果计数
+        function updateResultCount() {
+            const text = acceleratedUrlTextarea.value.trim();
+            const results = text ? text.split('\n').filter(line => line.trim() !== '') : [];
+            resultCountSpan.textContent = `${results.length} 个结果`;
+        }
+
+        // 显示状态消息
+        function showStatus(message, type = 'info') {
+            const icon = statusMessageDiv.querySelector('i');
+            const span = statusMessageDiv.querySelector('span');
+            
+            span.textContent = message;
+            
+            // 设置样式
+            statusMessageDiv.className = 'p-3 rounded-lg mb-4';
+            
+            switch (type) {
+                case 'success':
+                    statusMessageDiv.classList.add('bg-green-50', 'text-green-700', 'border', 'border-green-200');
+                    icon.className = 'fa fa-check-circle mr-2 text-green-500';
+                    break;
+                case 'error':
+                    statusMessageDiv.classList.add('bg-red-50', 'text-red-700', 'border', 'border-red-200');
+                    icon.className = 'fa fa-exclamation-circle mr-2 text-red-500';
+                    break;
+                case 'warning':
+                    statusMessageDiv.classList.add('bg-yellow-50', 'text-yellow-700', 'border', 'border-yellow-200');
+                    icon.className = 'fa fa-exclamation-triangle mr-2 text-yellow-500';
+                    break;
+                default:
+                    statusMessageDiv.classList.add('bg-blue-50', 'text-blue-700', 'border', 'border-blue-200');
+                    icon.className = 'fa fa-info-circle mr-2 text-blue-500';
+            }
+            
+            statusMessageDiv.classList.remove('hidden');
+            
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                statusMessageDiv.classList.add('hidden');
+            }, 3000);
+        }
+
+        // 快速链接点击
+        document.querySelectorAll('.quick-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const url = link.getAttribute('data-url');
+                originalUrlTextarea.value = url;
+                updateUrlCount();
+                showStatus(`已添加快速链接: ${url}`, 'info');
+            });
+        });
+
+        // 模拟统计数据
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                obj.innerHTML = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // 当元素进入视口时动画
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // 观察所有需要动画的元素
+        document.querySelectorAll('.card-hover').forEach(card => {
+            observer.observe(card);
+        });
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            // 动画统计数据
+            setTimeout(() => {
+                animateValue('stats-users', 0, 15000, 2000);
+                animateValue('stats-requests', 0, 250000, 2000);
+                animateValue('stats-speed', 0, 85, 2000);
+            }, 1000);
+
+            // 显示欢迎消息
+            showStatus('欢迎使用GitHub镜像加速服务！', 'success');
+        });
+
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    
+                    // 关闭移动端菜单
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

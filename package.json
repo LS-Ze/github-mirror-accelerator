@@ -1,0 +1,36 @@
+{
+  "name": "github-mirror-accelerator",
+  "version": "1.0.0",
+  "description": "GitHub Mirror Accelerator - 高速下载GitHub资源的Cloudflare Pages项目",
+  "main": "_worker.js",
+  "scripts": {
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy",
+    "preview": "wrangler pages dev --preview",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/github-mirror-accelerator.git"
+  },
+  "keywords": [
+    "github",
+    "accelerator",
+    "mirror",
+    "proxy",
+    "cloudflare",
+    "pages",
+    "workers"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/your-username/github-mirror-accelerator/issues"
+  },
+  "homepage": "https://github.com/your-username/github-mirror-accelerator#readme",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250419.0",
+    "typescript": "^5.4.5",
+    "wrangler": "^3.57.2"
+  }
+}
