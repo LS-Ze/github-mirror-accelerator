@@ -1,9 +1,4 @@
 # GitHub Mirror Accelerator - Cloudflare Pages Configuration
-
-[observability]
-enabled = true
-head_sampling_rate = 1 # optional. default = 1.
-
 name = "github-mirror-accelerator"
 compatibility_date = "2025-12-28"
 compatibility_flags = ["nodejs_compat"]
@@ -28,15 +23,31 @@ CACHE_MAX_AGE = 86400
 RATE_LIMIT = 100
 RATE_LIMIT_WINDOW = 60
 
-# KV命名空间（可选，用于高级缓存）
-# [[kv_namespaces]]
-# binding = "CACHE_KV"
-# id = ""
-# preview_id = ""
+KV命名空间（可选，用于高级缓存）
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = ""
+preview_id = ""
 
 # 日志配置
 [log]
-level = "info"
+level = "debug"  # 可以是: error, warn, info, debug, trace
+send_to_raygun = false
+send_to_sentry = false
+send_to_logtail = false
+
+# 额外的调试配置
+[minify]
+enabled = false  # 禁用代码压缩，便于调试
+
+# 开发环境配置
+[dev]
+log_level = "debug"
+inspector = true  # 启用调试器
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
 
 # 安全配置
 [security]
