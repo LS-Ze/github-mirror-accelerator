@@ -150,7 +150,7 @@ function buildGitHubRequest(request, githubUrl) {
 /**
  * 处理GitHub响应
  */
-function handleGitHubResponse(response, cacheKey) {
+function handleGitHubResponse(response, baseOrigin) {
   const headers = new Headers(response.headers);
   
   // 设置CORS头部
@@ -171,7 +171,7 @@ function handleGitHubResponse(response, cacheKey) {
       try {
         const locationUrl = new URL(location);
         if (CONFIG.GITHUB_DOMAINS.some(domain => locationUrl.hostname.endsWith(domain))) {
-          const proxyLocation = `${new URL(locationUrl.pathname + locationUrl.search, self.location.origin).href}`;
+          const proxyLocation = `${baseOrigin}/${encodeURIComponent(locationUrl.toString())}`;
           headers.set('Location', proxyLocation);
         }
       } catch (e) {
@@ -208,7 +208,7 @@ function handleError(message, status = 500) {
 /**
  * 主请求处理函数
  */
-async function handleRequest(request) {
+async function handleRequest(request, ctx) {
   try {
     // 处理OPTIONS请求
     if (request.method === 'OPTIONS') {
@@ -221,6 +221,7 @@ async function handleRequest(request) {
     }
     
     const url = new URL(request.url);
+    const baseOrigin = url.origin;
     
     // 根路径请求，返回前端页面
     if (url.pathname === '/' && url.search === '') {
@@ -269,7 +270,7 @@ async function handleRequest(request) {
     }
     
     // 构建缓存键
-    const cacheKey = new Request(githubUrl.toString(), request);
+    const cacheKey = new Request(githubUrl.toString(), 请求);
     const cache = caches.default;
     
     // 尝试从缓存获取
@@ -277,21 +278,26 @@ async function handleRequest(request) {
     
     // 如果缓存未命中，从GitHub获取
     if (!response) {
-      // 构建GitHub请求
-      const githubRequest = buildGitHubRequest(request, githubUrl);
-      
-      // 发送请求到GitHub
-      response = await fetch(githubRequest);
-      
-      // 如果响应成功，缓存起来
-      if (response.status === 200) {
-        const responseToCache = handleGitHubResponse(response.clone(), cacheKey);
-        event.waitUntil(cache.put(cacheKey, responseToCache));
+      try {
+        // 构建GitHub请求
+        const githubRequest = buildGitHubRequest(请求, githubUrl);
+        
+        // 发送请求到GitHub
+        response = await fetch(githubRequest);
+        
+        // 如果响应成功，缓存起来
+        if (response.status === 200) {
+          const responseToCache = handleGitHubResponse(response.clone(), baseOrigin);
+          ctx.waitUntil(cache.put(cacheKey, responseToCache));
+        }
+      } catch (fetchError) {
+        console.error('GitHub fetch error:', fetchError);
+        return handleError(`无法连接到GitHub: ${fetchError.message}`, 503);
       }
     }
     
     // 处理响应并返回
-    return handleGitHubResponse(response, cacheKey);
+    return handleGitHubResponse(response, baseOrigin);
     
   } catch (error) {
     console.error('Proxy error:', error);
@@ -301,7 +307,7 @@ async function handleRequest(request) {
 
 // 导出处理函数
 export default {
-  async fetch(request, env, ctx) {
-    return handleRequest(request);
+  async fetch(请求, env, ctx) {
+    return handleRequest(请求, ctx);
   }
 };
