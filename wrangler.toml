@@ -1,6 +1,6 @@
 # GitHub Mirror Accelerator - Cloudflare Pages Configuration
 name = "github-mirror-accelerator"
-compatibility_date = "2025-12-28"
+compatibility_date = "2025-12-27"  # 使用当前日期，不是未来日期
 compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = "."
 
