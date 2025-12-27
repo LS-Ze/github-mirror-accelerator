@@ -11,13 +11,6 @@ pages_build_output_dir = "."
 command = "exit 0"
 cwd = "."
 
-# 兼容性配置
-[compatibility_date]
-value = "2025-12-28"
-
-[compatibility_flags]
-nodejs_compat = true
-
 # 环境变量（用于代码中的配置）
 [vars]
 CACHE_MAX_AGE = 86400
