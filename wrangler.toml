@@ -3,58 +3,34 @@ name = "github-mirror-accelerator"
 compatibility_date = "2025-12-28"
 compatibility_flags = ["nodejs_compat"]
 
-[env.production]
+# 核心Pages配置
 pages_build_output_dir = "."
 
 # 构建配置
 [build]
 command = "exit 0"
 cwd = "."
-watch_dir = "."
 
-# 路由配置
-[[routes]]
-pattern = "/*"
-zone_name = ""
+# 兼容性配置
+[compatibility_date]
+value = "2025-12-28"
 
-# 环境变量
+[compatibility_flags]
+nodejs_compat = true
+
+# 环境变量（用于代码中的配置）
 [vars]
 CACHE_MAX_AGE = 86400
 RATE_LIMIT = 100
 RATE_LIMIT_WINDOW = 60
-
-# KV命名空间（可选，用于高级缓存）
-[[kv_namespaces]]
-binding = "CACHE_KV"
-id = ""
-preview_id = ""
-
-# 日志配置
-[log]
-level = "debug"  # 可以是: error, warn, info, debug, trace
-send_to_raygun = false
-send_to_sentry = false
-send_to_logtail = false
-
-# 额外的调试配置
-[minify]
-enabled = false  # 禁用代码压缩，便于调试
+ALLOWED_ORIGINS = "*"
 
 # 开发环境配置
 [dev]
+port = 8788
+local_protocol = "https"
 log_level = "debug"
-inspector = true  # 启用调试器
 
-[observability]
-enabled = true
-head_sampling_rate = 1 # optional. default = 1.
-
-# 安全配置
-[security]
-cors = { allow_origin = ["*"], allow_methods = ["GET", "HEAD", "OPTIONS"] }
-
-# 压缩配置
-[compression]
-enabled = true
-includes = ["text/*", "application/javascript", "application/json"]
-excludes = ["image/*", "video/*", "audio/*"]
+# 简化的路由配置
+[[routes]]
+pattern = "/*"
