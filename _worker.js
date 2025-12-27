@@ -1,9 +1,9 @@
 /**
- * GitHub Mirror Accelerator - 修复版
- * 确保所有变量正确定义，避免中文变量名
+ * GitHub Mirror Accelerator
+ * Fully English version, no Chinese variable names
  */
 
-// 支持的GitHub域名
+// Supported GitHub domains
 const GITHUB_DOMAINS = [
   'github.com',
   'raw.githubusercontent.com',
@@ -11,7 +11,7 @@ const GITHUB_DOMAINS = [
   'api.github.com'
 ];
 
-// 处理CORS
+// Handle CORS
 function handleCors(response) {
   const headers = new Headers(response.headers);
   headers.set('Access-Control-Allow-Origin', '*');
@@ -23,7 +23,7 @@ function handleCors(response) {
   });
 }
 
-// 处理OPTIONS请求
+// Handle OPTIONS requests
 function handleOptions() {
   return new Response(null, {
     status: 204,
@@ -36,7 +36,7 @@ function handleOptions() {
   });
 }
 
-// 验证GitHub URL
+// Validate GitHub URL
 function isValidGitHubUrl(url) {
   try {
     const parsedUrl = new 网站(url);
@@ -46,34 +46,34 @@ function isValidGitHubUrl(url) {
   }
 }
 
-// 主处理函数
+// Main request handler
 async function handleRequest(请求) {
   try {
-    // 处理OPTIONS请求
+    // Handle OPTIONS requests
     if (请求.method === 'OPTIONS') {
       return handleOptions();
     }
 
     const url = new 网站(请求.url);
     
-    // 根路径返回前端页面
+    // Root path returns frontend page
     if (url.pathname === '/' && url.search === '') {
       return fetch('index.html');
     }
 
-    // 提取原始GitHub URL
+    // Extract original GitHub URL
     let githubUrlStr = decodeURIComponent(url.pathname.slice(1) + url.search);
     
-    // 添加默认协议
+    // Add default protocol if missing
     if (!githubUrlStr.startsWith('http://') && !githubUrlStr.startsWith('https://')) {
       githubUrlStr = `https://${githubUrlStr}`;
     }
 
-    // 验证URL
+    // Validate URL
     if (!isValidGitHubUrl(githubUrlStr)) {
       return new Response(JSON.stringify({
         error: true,
-        message: 'Invalid GitHub URL'
+        message: 'Invalid GitHub URL format'
       }), {
         status: 400,
         headers: {
@@ -83,17 +83,17 @@ async function handleRequest(请求) {
       });
     }
 
-    // 构建请求
+    // Build request to GitHub
     const githubRequest = new Request(githubUrlStr, {
       method: 请求.method,
       headers: 请求.headers,
       redirect: 'manual'
     });
 
-    // 发送请求
+    // Send request to GitHub
     const response = await fetch(githubRequest);
     
-    // 处理响应
+    // Handle and return response
     return handleCors(response);
 
   } catch (error) {
@@ -111,7 +111,7 @@ async function handleRequest(请求) {
   }
 }
 
-// 导出处理函数
+// Export handler function
 export default {
   async fetch(请求) {
     return handleRequest(请求);
