@@ -1,5 +1,9 @@
 # GitHub Mirror Accelerator - Cloudflare Pages Configuration
 
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1.
+
 name = "github-mirror-accelerator"
 compatibility_date = "2025-12-28"
 compatibility_flags = ["nodejs_compat"]
